@@ -13,11 +13,10 @@ class TestClass
     static void Main(string[] args)
     {
         showMenu();
-        //createNewTodo();
-        //showTodos();
 
         static void showMenu()
         {
+            Console.Clear();
             Console.WriteLine(" -------MENU-------");
             Console.WriteLine("1. Create new todo ");
             Console.WriteLine("2. Show all todos ");
@@ -27,9 +26,11 @@ class TestClass
             Console.WriteLine("-------------------");
             Console.WriteLine("Choose what you want to do: \n");
             string choice = Console.ReadLine();
+            Console.Clear();
             if (!int.TryParse(choice, out int choiceValue) || choiceValue > 5)
             {
                 Console.WriteLine("Try your choice again: ");
+                showMenu();
             }
             else
             {
@@ -50,9 +51,6 @@ class TestClass
                     case 5:
                         exit();
                         break;
-                    default:
-                        showMenu();
-                        break;
                 }
             }
         }
@@ -64,13 +62,16 @@ class TestClass
             {
                 Console.WriteLine("Add name: \n");
                 _todoName = Console.ReadLine();
+                Console.Clear();
                 Console.WriteLine("Add description: \n");
                 _todoDesription = Console.ReadLine();
+                Console.Clear();
                 todos.Add(_todoName);
                 descriptions.Add(_todoDesription);
 
                 Console.WriteLine("Want add another todo? Choose yes or no: ");
                 string answer = Console.ReadLine();
+                Console.Clear();
                 switch (answer)
                 {
                     case "yes":
@@ -89,7 +90,7 @@ class TestClass
         }
 
         static void showTodos()
-        { 
+        {
             enumerate();
             escapeFromLoops();
         }
@@ -103,22 +104,24 @@ class TestClass
 
             Console.WriteLine("Which todo do you want to update? Write a number: \n");
             whichIndex = int.Parse(Console.ReadLine());
-            whichIndex -= 1;
 
             if (whichIndex <= index)
             {
                 Console.WriteLine("Want you update name or description? Write 't' or 'd'");
                 todoOrDescription = Console.ReadLine();
+                Console.Clear();
                 if (todoOrDescription == "t")
                 {
                     Console.WriteLine("Write new name of your todo: \n");
                     string updatedTodo = Console.ReadLine();
+                    Console.Clear();
                     todos[whichIndex] = updatedTodo;
                 }
                 else if (todoOrDescription == "d")
                 {
-                    Console.WriteLine("Write new name of your desription: \n");
+                    Console.WriteLine("Write new name of your description: \n");
                     string updatedDescription = Console.ReadLine();
+                    Console.Clear();
                     descriptions[whichIndex] = updatedDescription;
                 }
             }
@@ -136,25 +139,26 @@ class TestClass
         {
             index = 1;
             enumerate();
-            Console.WriteLine("Which todo do you want to complete? Write a number: \n");
-            whichIndex = int.Parse(Console.ReadLine());
-            whichIndex -= 1;
-
-            if (whichIndex <= index)
+            Console.WriteLine("Which todo do you want to complete? Write a number: ");
+            Console.Clear();
+            if (int.TryParse(Console.ReadLine(), out int whichIndex) && whichIndex >= 1 && whichIndex <= todos.Count)
             {
-                todos.RemoveAt(whichIndex);
-                descriptions.RemoveAt(whichIndex);
+                todos.RemoveAt(whichIndex - 1);
+                descriptions.RemoveAt(whichIndex - 1);
+                Console.WriteLine("Todo completed and removed.");
             }
             else
             {
-                showMenu();
+                Console.WriteLine("Invalid input or todo does not exist.");
+                completeTodo();
             }
 
             escapeFromLoops();
         }
 
+
         static void exit()
-        {
+        { 
             Environment.Exit(0);
         }
 
@@ -162,6 +166,7 @@ class TestClass
         {
             Console.WriteLine("Want you go back to menu or exit application? Write 'menu' or 'exit'...");
             var choice = Console.ReadLine();
+            Console.Clear();
             switch (choice)
             {
                 case "menu":

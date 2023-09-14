@@ -1,7 +1,9 @@
 ﻿using System;
+using Tudu;
 
 class TestClass
 {
+    static int todoCount;
     static int whichIndex;
     static int index;
     static bool choiceCheck;
@@ -9,48 +11,52 @@ class TestClass
     static string _todoDesription;
     static List<string> todos = new List<string>();
     static List<string> descriptions = new List<string>();
-
+    menu menuClass = new menu();
     static void Main(string[] args)
     {
         showMenu();
 
         static void showMenu()
         {
-            Console.Clear();
-            Console.WriteLine(" -------MENU-------");
-            Console.WriteLine("1. Create new todo ");
-            Console.WriteLine("2. Show all todos ");
-            Console.WriteLine("3. Edit existing todo ");
-            Console.WriteLine("4. Complete todo ");
-            Console.WriteLine("5. Exit");
-            Console.WriteLine("-------------------");
-            Console.WriteLine("Choose what you want to do: \n");
-            string choice = Console.ReadLine();
-            Console.Clear();
-            if (!int.TryParse(choice, out int choiceValue) || choiceValue > 5)
+            bool showMenu = true;
+            while (showMenu)
             {
-                Console.WriteLine("Try your choice again: ");
-                showMenu();
-            }
-            else
-            {
-                switch (choiceValue)
+                //Console.Clear();
+                Console.WriteLine(" -------MENU-------");
+                Console.WriteLine("1. Create new todo ");
+                Console.WriteLine("2. Show all todos ");
+                Console.WriteLine("3. Edit existing todo ");
+                Console.WriteLine("4. Complete todo ");
+                Console.WriteLine("5. Exit");
+                Console.WriteLine("-------------------");
+                Console.WriteLine("Choose what you want to do: \n");
+                string choice = Console.ReadLine();
+                Console.Clear();
+                if (!int.TryParse(choice, out int choiceValue) || choiceValue > 5)
                 {
-                    case 1:
-                        createNewTodo();
-                        break;
-                    case 2:
-                        showTodos();
-                        break;
-                    case 3:
-                        editTodo();
-                        break;
-                    case 4:
-                        completeTodo();
-                        break;
-                    case 5:
-                        exit();
-                        break;
+                    Console.WriteLine("Try your choice again: ");
+                }
+                else
+                {
+                    switch (choiceValue)
+                    {
+                        case 1:
+                            createNewTodo();
+                            break;
+                        case 2:
+                            showTodos();
+                            break;
+                        case 3:
+                            editTodo();
+                            break;
+                        case 4:
+                            completeTodo();
+                            break;
+                        case 5:
+                            showMenu = false;
+                            exit();
+                            break;
+                    }
                 }
             }
         }
@@ -74,9 +80,9 @@ class TestClass
                 Console.Clear();
                 switch (answer)
                 {
-                    case "yes":
+                    case "y":
                         continue;
-                    case "no":
+                    case "n":
                         next = false;
                         showMenu();
                         break;
@@ -91,13 +97,12 @@ class TestClass
 
         static void showTodos()
         {
-            enumerate();
+            enumerateWithText(); 
             escapeFromLoops();
         }
 
         static void editTodo()
         {
-            string todoOrDescription;
             index = 1;
 
             enumerate();
@@ -108,18 +113,18 @@ class TestClass
             if (whichIndex <= index)
             {
                 Console.WriteLine("Want you update name or description? Write 't' or 'd'");
-                todoOrDescription = Console.ReadLine();
+                var todoOrDescription = Console.ReadLine();
                 Console.Clear();
                 if (todoOrDescription == "t")
                 {
-                    Console.WriteLine("Write new name of your todo: \n");
+                    Console.WriteLine("Write new name for your todo: \n");
                     string updatedTodo = Console.ReadLine();
                     Console.Clear();
                     todos[whichIndex] = updatedTodo;
                 }
                 else if (todoOrDescription == "d")
                 {
-                    Console.WriteLine("Write new name of your description: \n");
+                    Console.WriteLine("Write new name for your description: \n");
                     string updatedDescription = Console.ReadLine();
                     Console.Clear();
                     descriptions[whichIndex] = updatedDescription;
@@ -137,26 +142,81 @@ class TestClass
 
         static void completeTodo()
         {
-            index = 1;
-            enumerate();
-            Console.WriteLine("Which todo do you want to complete? Write a number: ");
-            Console.Clear();
-            if (int.TryParse(Console.ReadLine(), out int whichIndex) && whichIndex >= 1 && whichIndex <= todos.Count)
+            bool checkIfContinue = true;
+            do
             {
-                todos.RemoveAt(whichIndex - 1);
-                descriptions.RemoveAt(whichIndex - 1);
-                Console.WriteLine("Todo completed and removed.");
-            }
-            else
-            {
-                Console.WriteLine("Invalid input or todo does not exist.");
-                completeTodo();
-            }
+                enumerate();
 
-            escapeFromLoops();
+                if (todoCount < 1)
+                {
+                    escapeFromLoops();
+                    break;
+                }
+
+                enumerateWithText();
+                Console.WriteLine("Which todo do you want to complete? Write a number: ");
+
+                if (int.TryParse(Console.ReadLine(), out int whichIndex) && whichIndex >= 1 && whichIndex <= todos.Count)
+                {
+                    todos.RemoveAt(whichIndex - 1);
+                    descriptions.RemoveAt(whichIndex - 1);
+                    Console.WriteLine("Todo completed and removed.");
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input or todo does not exist.");
+                    continue;
+                }
+
+                Console.WriteLine("Want you complete another todo? Yes x No");
+                string completeAnotherTodo = Console.ReadLine();
+
+                if (completeAnotherTodo.ToLower() == "n")
+                {
+                    checkIfContinue = false;
+                }
+            } while (checkIfContinue);
         }
 
-
+        static void enumerateWithText()
+        {
+            index = 0;
+            todoCount = 0;
+            foreach (var todoPair in todos.Zip(descriptions, (todo, desc) => new { Todo = todo, Description = desc }))
+            {
+                if (todoPair.Description != "")
+                {
+                    Console.WriteLine("{0}. {1}\n   - {2}", index + 1, todoPair.Todo, todoPair.Description);
+                    todoCount++;
+                    index++;
+                }
+                else
+                {
+                    Console.WriteLine("{0}. {1}", index + 1, todoPair.Todo);
+                    todoCount++;
+                    index++;
+                }
+            }
+            if (todoCount < 1)
+            {
+                Console.WriteLine("You haven't got any todos...");
+            }
+        }
+        static void enumerate()
+        {
+            index = 0;
+            todoCount = 0;
+            foreach (var todoPair in todos.Zip(descriptions, (todo, desc) => new { Todo = todo, Description = desc }))
+            {
+                todoCount++;
+            }
+            
+            if (todoCount < 1)
+            {
+                Console.WriteLine("You havent got any todos...");
+            }
+        }
+              
         static void exit()
         { 
             Environment.Exit(0);
@@ -177,16 +237,8 @@ class TestClass
                     break;
                 default:
                     Console.WriteLine("Wrong choice, try it again!");
+                    escapeFromLoops();
                     break;
-            }
-        }
-
-        static void enumerate()
-        {
-            foreach (var todoPair in todos.Zip(descriptions, (todo, desc) => new { Todo = todo, Description = desc }))
-            {
-                Console.WriteLine("{0}. {1}\n   - {2}", index, todoPair.Todo, todoPair.Description);
-                index++;
             }
         }
     }

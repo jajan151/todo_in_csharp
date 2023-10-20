@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Tudu;
 
 class TestClass
@@ -9,8 +10,9 @@ class TestClass
     static bool choiceCheck;
     static string _todoName;
     static string _todoDesription;
-    static List<string> todos = new List<string>();
-    static List<string> descriptions = new List<string>();
+    static List<string> todos = new();
+    static List<string> descriptions = new();
+    static string pathToFile = "/Users/mib/RiderProjects/Neco_velkeho/Tudu/todos.txt";
     menu menuClass = new menu();
     static void Main(string[] args)
     {
@@ -97,14 +99,48 @@ class TestClass
 
         static void showTodos()
         {
-            enumerateWithText(); 
-            escapeFromLoops();
+            StreamWriter sw = new StreamWriter(pathToFile);
+            for (int i = 1; i < 21; i++)
+            {
+                if (i < 20)
+                {
+                    sw.Write(i + ", ");
+                }
+                else
+                {
+                    sw.Write(i);
+                }
+            }
+            sw.Close();
+            List<string> neco = new List<string>(File.ReadLines(pathToFile));
+            List<int> items = new List<int>();
+
+            foreach (string line in neco)
+            {
+                string[] numbers = line.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string numberString in numbers)
+                {
+                    if (int.TryParse(numberString, out int number))
+                    {
+                        items.Add(number);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Could not parse: {numberString}");
+                    }
+                }
+            }
+
+            foreach (int number in items)
+            {
+                Console.WriteLine(number);
+            }
         }
 
         static void editTodo()
         {
             index = 1;
-
             enumerate();
 
             Console.WriteLine("Which todo do you want to update? Write a number: \n");
@@ -113,7 +149,7 @@ class TestClass
             if (whichIndex <= index)
             {
                 Console.WriteLine("Want you update name or description? Write 't' or 'd'");
-                var todoOrDescription = Console.ReadLine();
+                string todoOrDescription = Console.ReadLine();
                 Console.Clear();
                 if (todoOrDescription == "t")
                 {
